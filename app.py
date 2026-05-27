@@ -3,7 +3,7 @@ import torch
 import numpy as np
 import joblib
 import matplotlib.pyplot as plt
-from transformers import BertTokenizer
+from transformers.models.bert import BertTokenizer
 
 from model import FairBERTModel
 
