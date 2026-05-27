@@ -1,0 +1,12 @@
+# Virtual Environment
+venv/
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# Local Data and Model Checkpoints
+resume_dataset_raw.csv
+fairbert_model.pt
+label_encoder.pkl
+gender_encoder.pkl
