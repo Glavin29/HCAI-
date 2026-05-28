@@ -144,7 +144,7 @@ def plot_bar_chart(data, title, xlabel="Confidence", ylabel="Category", color_st
     ax.set_facecolor('none')
     
     colors = [color_start if i % 2 == 0 else color_end for i in range(len(labels))]
-    bars = ax.barh(labels[::-1], values[::-1], color=colors[::-1], edgecolor='rgba(255,255,255,0.08)', height=0.5)
+    bars = ax.barh(labels[::-1], values[::-1], color=colors[::-1], edgecolor=(1.0, 1.0, 1.0, 0.08), height=0.5)
     
     ax.set_xlabel(xlabel, fontsize=8, color='#94a3b8', fontweight='bold')
     ax.set_ylabel(ylabel, fontsize=8, color='#94a3b8', fontweight='bold')
@@ -154,7 +154,7 @@ def plot_bar_chart(data, title, xlabel="Confidence", ylabel="Category", color_st
     ax.set_axisbelow(True)
     
     for spine in ['top', 'right', 'left', 'bottom']:
-        ax.spines[spine].set_color('rgba(255,255,255,0.05)')
+        ax.spines[spine].set_color((1.0, 1.0, 1.0, 0.05))
         
     max_val = max(values)
     for bar in bars:
@@ -176,14 +176,14 @@ def plot_comparison_chart(score1, score2, label1, label2, title):
     scores = [score1, score2]
     colors = ['#6366f1', '#ef4444' if score2 < score1 else '#10b981']
     
-    bars = ax.barh(categories[::-1], scores[::-1], color=colors[::-1], edgecolor='rgba(255,255,255,0.08)', height=0.45)
+    bars = ax.barh(categories[::-1], scores[::-1], color=colors[::-1], edgecolor=(1.0, 1.0, 1.0, 0.08), height=0.45)
     
     ax.set_xlabel("Match Score (%)", fontsize=8, color='#94a3b8', fontweight='bold')
     ax.set_title(title, fontsize=10, color='#f3f4f6', pad=10, fontweight='bold', fontfamily='Outfit')
     ax.set_xlim(0, 110)
     
     for spine in ['top', 'right', 'left', 'bottom']:
-        ax.spines[spine].set_color('rgba(255,255,255,0.05)')
+        ax.spines[spine].set_color((1.0, 1.0, 1.0, 0.05))
         
     for bar in bars:
         width = bar.get_width()
