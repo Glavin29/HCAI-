@@ -354,7 +354,7 @@ The classification accuracy is bounded by the large number of distinct job-title
 \subsection{Feedback Analysis}
 The baseline model's ranking was evaluated across a 20\% shortlist size (240 candidates). The selection rates and score parity are detailed in Table~\ref{tab:parity_metrics}.
 
-\begin{table*}[t]
+\begin{table}[h]
 \centering
 \caption{Actual Selection Rate and Score Parity Metrics}
 \label{tab:parity_metrics}
@@ -367,7 +367,7 @@ Female & 520 & 20.58\% & 1.00 & 17.74 & +0.20 \\
 Non-Binary & 73 & 20.55\% & 1.00 & 17.94 & +0.39 \\
 \bottomrule
 \end{tabular}
-\end{table*}
+\end{table}
 
 In the baseline (unmitigated) configuration, the selection rates for Male and Female candidates yield an impact ratio of 0.94 and 1.00 respectively, compared to the reference group. This suggests that the unmitigated model ranking does not trigger adverse impact under the conventional four-fifths rule.
 
@@ -377,7 +377,7 @@ K_{\text{group}} = \max\left(1, \lfloor K / |G| \rfloor\right) = 80
 \end{equation}
 Because the Non-Binary category comprises only 73 candidates in the entire pool, the algorithm selects all 73 individuals, leaving $80 - 73 = 7$ vacant slots in the target shortlist. **These remaining 7 vacancies are redistributed by pulling the next highest-scoring candidates from the remaining unselected pool, sorted strictly by their predicted profile-consistency score, regardless of demographic group. In this empirical run, this fallback selection resulted in 6 additional Male candidates and 1 additional Female candidate being selected.** Thus, to fill the remaining slots, the final counts for Male and Female groups are restricted to 86 and 81 (selection rates of 14.17\% and 15.58\% respectively). This intervention severely suppresses their impact ratios to 0.14 and 0.16, as summarized in Table~\ref{tab:rebalanced_parity_metrics}.
 
-\begin{table*}[t]
+\begin{table}[h]
 \centering
 \caption{Actual Rebalanced Selection Rate and Score Parity Metrics}
 \label{tab:rebalanced_parity_metrics}
@@ -390,7 +390,7 @@ Female & 520 & 81 & 15.58\% & 0.16 \\
 Non-Binary & 73 & 73 & 100.00\% & 1.00 \\
 \bottomrule
 \end{tabular}
-\end{table*}
+\end{table}
 
 This demonstrates that naive mathematical rebalancing constraints can introduce extreme statistical disparities when applied to highly imbalanced groups. Future roadmaps should implement intersectional auditing across joint categories:
 \begin{equation}
@@ -421,11 +421,11 @@ The intersectional audit reveals a critical pattern that remains hidden when ana
 \subsection{User Interface}
 The Streamlit dashboard allows recruiters to interactively inspect these tables. The qualitative HCAI proxy-risk analysis (Table~\ref{tab:hcai_audit}) is presented in the dashboard's ``HCAI Audit'' tab, warning recruiters about fields that may encode historical bias.
 
-\begin{table*}[t]
+\begin{table}[h]
 \centering
 \caption{Qualitative HCAI Audit of Proxy-Risk Variables}
 \label{tab:hcai_audit}
-\begin{tabular}{lrrrl}
+\begin{tabular}{lrrrp{3.1cm}}
 \toprule
 \textbf{Field} & \textbf{Missing (\%)} & \textbf{Unique Values} & \textbf{Largest Group Share (\%)} & \textbf{Review Focus} \\
 \midrule
@@ -436,7 +436,7 @@ Graduation Year & 0.0\% & 25 & 7.42\% & Potential age or career-break proxy. \\
 Field of Study & 0.0\% & 21 & 6.33\% & May encode historical occupational segregation. \\
 \bottomrule
 \end{tabular}
-\end{table*}\subsection{Feature Correlation Analysis}
+\end{table}\subsection{Feature Correlation Analysis}
 To evaluate how candidate profile variables influence the final consistency rating, we perform a Pearson correlation analysis between the numeric candidate features and the computed \texttt{candidate\_score}. The empirical correlation coefficients are detailed in Table~\ref{tab:correlations}.
 
 \begin{table}[h]
