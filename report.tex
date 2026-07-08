@@ -51,7 +51,7 @@
 
 \begin{document}
 
-\title{FairHire AI: A Human-Centered Machine Learning Framework for Fair Resume Screening}
+\title{Evaluation of Potential Threats for Users in Human-Centered AI Systems: A Case Study on Fair Resume Screening}
 
 \author{Student Author}
 \email{student@example.edu}
@@ -62,40 +62,42 @@
 }
 
 \begin{abstract}
-Algorithmic hiring systems support recruitment by reducing manual screening workloads, but they risk reproducing social bias and concealing consequential decision logic. This paper presents FairHire AI, a human-centered resume screening framework utilizing RoBERTa semantic representations—a transformer-based pipeline that extracts dense contextual embeddings from resume texts, combined with a logistic regression classifier to predict candidate role consistency. Because the training data represents historical profiles rather than explicit hiring outcomes, the classifier's predicted probability is utilized as a profile-consistency ranking signal. The system audits the ranked shortlist across gender categories using selection rates, impact ratios, and score parity, and incorporates a qualitative human-centered AI (HCAI) audit of proxy-risk variables. The results demonstrate that semantic resume screening achieves a competitive fairness profile (0.94 disparate impact ratio and a 1.14\% selection gap) and that fair AI in recruitment requires a socio-technical approach combining representation-aware modeling, interface transparency, and human oversight.
+Algorithmic systems are increasingly integrated into high-stakes workplace decision-making, but they introduce subtle but critical threats for human users, ranging from blind reliance on biased predictions to opaque explainability. This paper presents a framework to evaluate potential user-related threats in Human-Centered AI (HCAI) systems, using automated resume screening as an empirical case study. We implement a proof-of-concept HCAI system, FairHire AI, utilizing pre-trained RoBERTa semantic representations and a logistic regression classifier to predict candidate role consistency. The system is designed to expose and evaluate key HCAI threats: (1) algorithmic bias and adverse impact, (2) explanation opacity, (3) proxy-variable risk, (4) naive post-processing mitigation risks, and (5) temporal career-span bias. Our evaluation reveals that while semantic screening achieves a balanced baseline selection profile (0.94 impact ratio), enforcing strict mathematical group parity on imbalanced pools introduces an over-correction threat, skewing group selection rates and reducing utility. This demonstrates that identifying and auditing user-related threats is essential for developing reliable, safe, and trustworthy HCAI systems.
 \end{abstract}
 
-\keywords{Algorithmic Fairness, Human-Centered AI, Resume Screening, Explainable Machine Learning, Algorithmic Auditing, RoBERTa, Transformer Embeddings, Socio-technical Systems}
+\keywords{Algorithmic Threats, Human-Centered AI, Explainable Machine Learning, Algorithmic Auditing, Socio-technical Systems, Resume Screening, RoBERTa Embeddings}
 
 \maketitle
 
 \section{INTRODUCTION}
-Hiring is a high-impact decision domain. Recruitment decisions affect employment access, income, professional mobility, and social inclusion. As organizations increasingly use algorithmic systems to screen resumes, fairness becomes a central concern. A model may appear objective because it processes structured data, but it can still reproduce historical inequalities, biased data collection practices, proxy discrimination, and unequal opportunity structures. Under regulations such as the European Union AI Act, automated hiring tools are classified as ``high-risk'' AI systems, requiring strict compliance regarding transparency, data governance, robustness, and human oversight.
+AI is increasingly integrated into many aspects of daily life, often serving the user. In doing so, it can introduce subtle but important risks, ranging from users trusting an AI without proper understanding of it, or relying on the system's faulty reasoning or biased responses. As many current AI systems are built on performance rather than the way in which the system is understood and interpreted by humans, one may be blindly relying on decisions which would have been unfair or incorrect. In this project, we aim to examine the variety of threats which users can face when using a Human-Centered AI system. The intention is to look beyond solely technical failures and instead consider how the system is understood, interpreted, and responded to by the human user.
 
-Algorithmic fairness is the field of research at the intersection of machine learning, ethics, and law. It studies the causes of bias in datasets and algorithms, defines mathematical fairness metrics, develops fairer modeling methods, and informs governance frameworks for AI systems. However, fairness is not merely a mathematical optimization problem. The causes of unfairness can exist before model training begins: in who has access to apply, whose resumes are represented in the training data, which qualifications are valued, how historical hiring labels are assigned, and which social variables are indirectly encoded through proxies.
+As a concrete scenario for this analysis, we focus on automated resume screening in corporate recruitment—a high-impact decision domain. Recruitment decisions affect employment access, income, professional mobility, and social inclusion. As organizations increasingly use algorithmic systems to screen resumes, fairness and user trust become central concerns. A model may appear objective because it processes structured data, but it can still reproduce historical inequalities, biased data collection practices, proxy discrimination, and unequal opportunity structures. Under regulations such as the European Union AI Act, automated hiring tools are classified as ``high-risk'' AI systems, requiring strict compliance regarding transparency, data governance, robustness, and human oversight.
 
-FairHire AI was developed as a Human-Centered AI (HCAI) research framework. Rather than automating recruitment decisions, the primary objective is to build an interactive, transparency-first prototype that demonstrates how resume screening can be made auditable, explainable, and fairness-aware. The system avoids using candidate names as model inputs to prevent direct bias. It also excludes gender from prediction features, utilizing it only after scoring for fairness auditing and mitigation. By integrating these quantitative tools with a qualitative HCAI audit framework, the system aims to support recruiters in making more responsible, human-in-the-loop decisions.
+Algorithmic fairness is the field of research at the intersection of machine learning, ethics, and law. It studies the causes of bias in datasets and algorithms, defines mathematical fairness metrics, develops fairer modeling methods, and informs governance frameworks for AI systems. However, fairness is not merely a mathematical optimization problem. The causes of unfairness can exist before model training begins: in who has access to apply, whose resumes are represented in the training data, which qualifications are valued, how historical hiring labels are assigned, and which social variables are indirectly encoded through proxies. 
+
+Rather than automating recruitment decisions, the primary objective is to build an interactive, transparency-first prototype, FairHire AI, that serves as a case study to demonstrate how user-related threats in resume screening can be made auditable, explainable, and mitigated. By integrating these quantitative tools with a qualitative HCAI audit framework, the system aims to support recruiters in making more responsible, human-in-the-loop decisions.
 
 \subsection*{Problem Statement}
-\textit{Algorithmic hiring systems can efficiently parse candidate attributes, but they often present static, generic outputs and lack transparent fairness reporting. This limits their utility for stakeholders with diverse operational and ethical requirements. Without proper auditing, models reproduce systemic bias and provide no visibility into how specific ranking scores are computed, reducing effectiveness, trustworthiness, and ethical alignment in hiring decisions.}
+\textit{Algorithmic systems in recruitment can efficiently parse candidate attributes, but they introduce subtle threats to users through unclear explanations, biased output, over-trust, and lack of transparency. Without proper auditing and interface support, these systems can lead users to blindly rely on decisions which would have been unfair or incorrect, violating core HCAI principles of usability, safety, and fairness.}
 
 \subsection*{MOTIVATION AND OBJECTIVES}
 The motivation for this research arises from the growing integration of automated tools in recruitment and the confusion regarding how screening decisions are made. Different user groups interact with AI-generated screening data in distinct ways:
 \begin{itemize}
-    \item \textbf{HR Recruiters and Hiring Managers} require actionable decision support. They need candidate scores accompanied by clear, local explanations of key profile signals (skills, experience, certifications) to verify suitability and prevent automated bias.
-    \item \textbf{Candidates} require transparency and accountability. They need assurance that protected characteristics (such as gender and name) are excluded from scoring, and expect clear pathways to understand how they are represented.
-    \item \textbf{Compliance Officers and Auditors} require systematic auditing tools. They rely on quantitative metrics (selection rates, impact ratios, score parity) and qualitative HCAI audit trails to ensure compliance with emerging standards like the EU AI Act and NIST SP 1270.
+    \item \textbf{HR Recruiters and Hiring Managers} require actionable decision support. They face the threat of explanation opacity and over-trust, needing candidate scores accompanied by clear, local explanations of key profile signals to verify suitability and prevent automated bias.
+    \item \textbf{Candidates} require transparency and accountability. They face threats of direct bias, requiring assurance that protected characteristics (such as gender and name) are excluded from scoring, and expecting clear pathways to understand how they are represented.
+    \item \textbf{Compliance Officers and Auditors} require systematic auditing tools. They face the threat of systemic compliance failure, relying on quantitative metrics and qualitative HCAI audit trails to ensure compliance with emerging standards like the EU AI Act and NIST SP 1270.
 \end{itemize}
-The goal of this research is to bridge this socio-technical divide and contribute to the development of human-centered AI (HCAI) in recruitment.
+The goal of this research is to bridge this socio-technical divide and contribute to the development of human-centered AI (HCAI) in recruitment by implementing a clear framework to evaluate potential user threats.
 
 \subsection*{Objectives}
 \begin{itemize}
-    \item \textbf{Implement Candidate-Level Scoring}: Train a role-consistency classifier using pre-trained RoBERTa transformer representations to parse candidate profiles.
-    \item \textbf{Enforce Demographic Feature Exclusion}: Exclude candidate names and gender from prediction features to prevent direct bias.
-    \item \textbf{Generate Local Explanations}: Provide human-readable summaries of candidate profile signals and classification outputs for oversight.
-    \item \textbf{Audit Statistical Parity}: Track selection rates and score distributions across gender categories to monitor adverse impact.
-    \item \textbf{Formulate a Qualitative Audit}: Assess potential proxy risks associated with non-protected attributes (e.g., graduation year, institute name).
-    \item \textbf{Deploy Post-Processing Mitigation}: Integrate representation-aware rebalancing to examine the mathematical trade-offs between selection accuracy and group parity.
+    \item \textbf{Implement a Case Study Prototype}: Train a role-consistency classifier using pre-trained RoBERTa transformer representations on resume features to evaluate candidate profiles.
+    \item \textbf{Identify and Exclude Protected Attributes}: Exclude candidate names and gender from prediction features during scoring to prevent direct bias.
+    \item \textbf{Address Explanation Opacity}: Generate local summaries of candidate profile signals and classification outputs to support human-in-the-loop interpretation.
+    \item \textbf{Audit Statistical Parity Threats}: Track selection rates and score distributions across gender categories to monitor adverse impact.
+    \item \textbf{Assess Proxy-Variable and Temporal Threats}: Formulate a qualitative HCAI audit table for proxy fields and evaluate temporal/career-span correlations.
+    \item \textbf{Evaluate Mitigation Threats}: Integrate representation-aware rebalancing to evaluate the mathematical trade-offs and side-effects of algorithmic re-ranking on user outcomes.
 \end{itemize}
 
 \section{LITERATURE SURVEY}
