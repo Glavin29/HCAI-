@@ -362,7 +362,7 @@ The baseline model's ranking was evaluated across a 20\% shortlist size (240 can
 \label{tab:parity_metrics}
 \begin{tabular}{lrrrrr}
 \toprule
-\textbf{Gender Group} & \textbf{Pool Count} & \textbf{Selection Rate} & \textbf{Impact Ratio} & \textbf{Mean Score} & \textbf{Score Gap} \\
+\textbf{Gender} & \textbf{Pool} & \textbf{Sel. Rate} & \textbf{Impact Ratio} & \textbf{Mean} & \textbf{Gap} \\
 \midrule
 Male & 607 & 19.44\% & 0.94 & 17.32 & -0.22 \\
 Female & 520 & 20.58\% & 1.00 & 17.74 & +0.20 \\
@@ -387,7 +387,7 @@ Because the Non-Binary category comprises only 73 candidates in the entire pool,
 \label{tab:rebalanced_parity_metrics}
 \begin{tabular}{lrrrr}
 \toprule
-\textbf{Gender Group} & \textbf{Pool Count} & \textbf{Selected Count} & \textbf{Selection Rate} & \textbf{Impact Ratio} \\
+\textbf{Gender} & \textbf{Pool} & \textbf{Selected} & \textbf{Sel. Rate} & \textbf{Impact Ratio} \\
 \midrule
 Male & 607 & 86 & 14.17\% & 0.14 \\
 Female & 520 & 81 & 15.58\% & 0.16 \\
@@ -410,7 +410,7 @@ To illustrate the value of this approach, we perform an intersectional baseline 
 \label{tab:intersectional_audit}
 \begin{tabular}{lrrr}
 \toprule
-\textbf{Intersectional Group} & \textbf{Pool} & \textbf{Selected} & \textbf{Selection Rate} \\
+\textbf{Group} & \textbf{Pool} & \textbf{Selected} & \textbf{Sel. Rate} \\
 \midrule
 Female $\times$ Young ($<35$) & 255 & 62 & 24.31\% \\
 Female $\times$ Senior ($\ge 35$) & 265 & 45 & 16.98\% \\
@@ -429,11 +429,13 @@ The Streamlit dashboard allows recruiters to interactively inspect these tables.
 
 \begin{table}[h]
 \centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
 \caption{Qualitative HCAI Audit of Proxy-Risk Variables}
 \label{tab:hcai_audit}
-\begin{tabular}{lrrrp{3.1cm}}
+\begin{tabular}{lrrrp{2.5cm}}
 \toprule
-\textbf{Field} & \textbf{Missing (\%)} & \textbf{Unique Values} & \textbf{Largest Group Share (\%)} & \textbf{Review Focus} \\
+\textbf{Field} & \textbf{Missing} & \textbf{Unique} & \textbf{Max Share} & \textbf{Review Focus} \\
 \midrule
 Gender & 0.0\% & 3 & 50.58\% & Protected attribute; monitor selection and score parity. \\
 Age & 0.0\% & 35 & 7.50\% & Protected or sensitive attribute; avoid direct scoring. \\
