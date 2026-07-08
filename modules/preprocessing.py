@@ -23,7 +23,7 @@ def count_list_items(value: object) -> int:
     cleaned_items = [
         item.strip()
         for item in str(value).split(",")
-        if item.strip() and item.strip().lower() != "none"
+        if item.strip() and item.strip().lower() not in ("none", "not listed")
     ]
     return len(cleaned_items)
 

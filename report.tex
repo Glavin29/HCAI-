@@ -74,7 +74,7 @@ Algorithmic systems are increasingly integrated into high-stakes workplace decis
 \maketitle
 
 \section{INTRODUCTION}
-AI is increasingly integrated into many aspects of daily life, often serving the user. In doing so, it can introduce subtle but important risks, ranging from users trusting an AI without proper understanding of it, or relying on the system's faulty reasoning or biased responses. As many current AI systems are built on performance rather than the way in which the system is understood and interpreted by humans, one may be blindly relying on decisions which would have been unfair or incorrect. In this project, we aim to examine the variety of threats which users can face when using a Human-Centered AI system. The intention is to look beyond solely technical failures and instead consider how the system is understood, interpreted, and responded to by the human user.
+The proliferation of artificial intelligence systems in everyday domains has created new forms of interaction, but has also introduced critical socio-technical risks. Human users frequently struggle to gauge the reliability of algorithmic suggestions, leading to issues of misplaced trust in flawed logic or biased outputs. Because traditional machine learning optimization focuses predominantly on accuracy rather than human comprehensibility, operators often rely on decisions that are structurally unfair or factually incorrect. This research investigates the spectrum of user-related vulnerabilities that emerge during human-system collaboration. By shifting the focus from purely computational bugs to how systems are cognitively processed and integrated by recruiters, we address the human-centered alignment of automated systems.
 
 As a concrete scenario for this analysis, we focus on automated resume screening in corporate recruitment—a high-impact decision domain. Recruitment decisions affect employment access, income, professional mobility, and social inclusion. As organizations increasingly use algorithmic systems to screen resumes, fairness and user trust become central concerns. A model may appear objective because it processes structured data, but it can still reproduce historical inequalities, biased data collection practices, proxy discrimination, and unequal opportunity structures. Under regulations such as the European Union AI Act, automated hiring tools are classified as ``high-risk'' AI systems, requiring strict compliance regarding transparency, data governance, robustness, and human oversight.
 
@@ -82,10 +82,10 @@ Algorithmic fairness is the field of research at the intersection of machine lea
 
 Rather than automating recruitment decisions, the primary objective is to build an interactive, transparency-first prototype, FairHire AI, that serves as a case study to demonstrate how user-related threats in resume screening can be made auditable, explainable, and mitigated. By integrating these quantitative tools with a qualitative HCAI audit framework, the system aims to support recruiters in making more responsible, human-in-the-loop decisions.
 
-\subsection*{Problem Statement}
+\subsection{Problem Statement}
 \textit{Algorithmic systems in recruitment can efficiently parse candidate attributes, but they introduce subtle threats to users through unclear explanations, biased output, over-trust, and lack of transparency. Without proper auditing and interface support, these systems can lead users to blindly rely on decisions which would have been unfair or incorrect, violating core HCAI principles of usability, safety, and fairness.}
 
-\subsection*{MOTIVATION AND OBJECTIVES}
+\subsection{Motivation and Objectives}
 The motivation for this research arises from the growing integration of automated tools in recruitment and the confusion regarding how screening decisions are made. Different user groups interact with AI-generated screening data in distinct ways:
 \begin{itemize}
     \item \textbf{HR Recruiters and Hiring Managers} require actionable decision support. They face the threat of explanation opacity and over-trust, needing candidate scores accompanied by clear, local explanations of key profile signals to verify suitability and prevent automated bias.
@@ -94,7 +94,7 @@ The motivation for this research arises from the growing integration of automate
 \end{itemize}
 The goal of this research is to bridge this socio-technical divide and contribute to the development of human-centered AI (HCAI) in recruitment by implementing a clear framework to evaluate potential user threats.
 
-\subsection*{Objectives}
+\subsubsection{Key Project Objectives}
 \begin{itemize}
     \item \textbf{Implement a Case Study Prototype}: Train a role-consistency classifier using pre-trained RoBERTa transformer representations on resume features to evaluate candidate profiles.
     \item \textbf{Identify and Exclude Protected Attributes}: Exclude candidate names and gender from prediction features during scoring to prevent direct bias.
@@ -114,7 +114,7 @@ Barocas, Hardt, and Narayanan~\cite{barocas2023} argue that algorithmic fairness
 Automated resume screening typically relies on extracting structured text features and mapping them to professional targets. Recent advances in Natural Language Processing (NLP) have shifted resume screening from bag-of-words representations to deep contextual transformer architectures, such as BERT~\cite{devlin2018} and RoBERTa~\cite{liu2019}. While these deep sequence models excel at capturing semantic nuances and synonymy across complex candidate skills, they are also prone to encoding and reinforcing historical societal stereotypes present in their large-scale pre-training corpus. For instance, in 2018, Amazon scrapped an AI recruiting tool because it had learned to penalize resumes containing the word ``women's''~\cite{dastin2018}. Consequently, the model acts as an ``equity-washing'' mechanism, reinforcing systemic bias under the guise of algorithmic objectivity.
 
 \subsection{Quantitative Fairness Metrics}
-The four-fifths rule is commonly used as a practical screening method for potential adverse impact~\cite{pessach2020}. It compares each group's selection rate with the highest group selection rate. If a group's selection rate is below 80\% of the highest rate, the outcome requires further review. In FairHire AI, this rule is implemented as an impact ratio for fairness auditing. The system treats it as an alert, not as a final legal conclusion.
+The four-fifths rule is commonly used as a practical screening method for potential adverse impact~\cite{eeoc1978, pessach2020}. It compares each group's selection rate with the highest group selection rate. If a group's selection rate is below 80\% of the highest rate, the outcome requires further review. In FairHire AI, this rule is implemented as an impact ratio for fairness auditing. The system treats it as an alert, not as a final legal conclusion.
 
 \subsection{Explainability in Algorithmic Hiring}
 Binns explores the tension between fairness and the black-box nature of machine learning models. Without explainability, recruiters cannot identify whether a candidate was ranked highly due to genuine qualifications or because of spurious correlations. Standard local explanation methods such as SHAP~\cite{lundberg2017} and LIME~\cite{ribeiro2016} attempt to solve this by providing feature attribution, although their integration into practical HR tools remains a challenge.
@@ -188,7 +188,7 @@ def count_list_items(value: object) -> int:
     cleaned_items = [
         item.strip()
         for item in str(value).split(",")
-        if item.strip() and item.strip().lower() != "none"
+        if item.strip() and item.strip().lower() not in ("none", "not listed")
     ]
     return len(cleaned_items)
 
@@ -246,13 +246,13 @@ For each candidate, the candidate score is computed based on the highest predict
 To facilitate user interaction and support human oversight, the system is deployed as an interactive dashboard using Streamlit. The interface allows recruiters to analyze ranked candidates, dynamically adjust shortlist thresholds (between 5\% and 50\%), review group-level score gaps, inspect qualitative HCAI proxy metrics, and apply mitigation algorithms.
 
 \subsection{Explainability and Interpretability}
-To support local interpretability, the dashboard provides candidate-specific summaries detailing predicted roles, confidence scores, and profile attributes. A notable limitation of this baseline explanation method is the absence of formal feature attributions (e.g., SHAP~\cite{lundberg2017} or LIME~\cite{ribeiro2016} weights), which limits a recruiter's capacity to trace the exact influence of individual tokens or features on the final score.
+To support local interpretability, the dashboard provides candidate-specific summaries detailing predicted roles, confidence scores, and profile attributes. A notable limitation of this baseline explanation method is the absence of formal feature attributions (e.g., SHAP~\cite{lundberg2017} or LIME~\cite{ribeiro2016} weights), which limits a recruiter's capacity to trace the exact influence of individual tokens or features on the final score. **This omission was a deliberate scoping choice for this initial iteration to prioritize real-time interactive performance on the Streamlit dashboard, as SHAP and LIME evaluations on deep transformer sequence encoders are computationally expensive and would introduce high rendering latency for human recruiters during live screening loops.**
 
 \subsection{Database and Logging}
 For compliance and auditing governance, the system records configurations such as shortlist percentages, user-supplied job descriptions, candidate selections, baseline selection rates, and post-mitigation audits. This database provides a structured audit trail for post-deployment monitoring.
 
 \subsection{Integrated Pipeline}
-The integrated pipeline links the database loading, numeric preprocessing, scikit-learn classification scoring, candidate ranking, selection-rate auditing, representation-aware rebalancing, and text-similarity matching into a unified execution flow.
+The integrated pipeline links the database loading, numeric preprocessing, scikit-learn classification scoring, candidate ranking, selection-rate auditing, representation-aware rebalancing, and text-similarity matching into a unified execution flow. **The complete implementation of the pipeline, preprocessing modules, and Streamlit dashboard code is publicly hosted and accessible at \url{https://github.com/Glavin29/HCAI-.git} to support reproducibility and open algorithmic auditing.**
 
 \section{SYSTEM ARCHITECTURE OVERVIEW}
 The system architecture processes resume data through five distinct layers, maintaining data security and separating demographic attributes during scoring. The data flow and component layout are visualized in Figure~\ref{fig:architecture}.
@@ -349,7 +349,7 @@ Macro $F_1$ Score & 0.0657 \\
 \end{tabular}
 \end{table}
 
-The classification accuracy is bounded by the large number of distinct job-title targets (142 classes) relative to the sample size (960 training instances). This sparse distribution represents a characteristic feature of real-world resume parsing, where candidate roles exhibit high variety. Nonetheless, the RoBERTa-based semantic representations achieve an accuracy of 7.08\%, which represents a major improvement over the random guessing rate of 0.70\% ($1/142$) and models semantic features far more effectively.
+The classification accuracy is bounded by the large number of distinct job-title targets (142 classes) relative to the sample size (960 training instances). This sparse distribution represents a characteristic feature of real-world resume parsing, where candidate roles exhibit high variety. Nonetheless, the RoBERTa-based semantic representations achieve an accuracy of 7.08\%, which represents a major improvement over the random guessing rate of 0.70\% ($1/142$) and models semantic features far more effectively. **Importantly, this low top-1 accuracy of 7.08\% indicates that the model's predictions are highly uncertain, which strictly limits the validity and weight that \texttt{candidate\_score} should carry as a primary decision-making or fairness signal. Recruiters must not treat this score as a ground-truth metric of candidate capability, but rather as a highly exploratory, heuristic representation.**
 
 \subsection{Feedback Analysis}
 The baseline model's ranking was evaluated across a 20\% shortlist size (240 candidates). The selection rates and score parity are detailed in Table~\ref{tab:parity_metrics}.
@@ -375,7 +375,7 @@ Applying the representation-aware rebalancing algorithm to enforce strict demogr
 \begin{equation}
 K_{\text{group}} = \max\left(1, \lfloor K / |G| \rfloor\right) = 80
 \end{equation}
-Because the Non-Binary category comprises only 73 candidates in the entire pool, the algorithm selects all 73 individuals, leading to a 100\% selection rate. To fill the remaining slots, the selection rates for Male and Female groups are restricted to 14.17\% and 15.58\%. This intervention severely suppresses their impact ratios to 0.14 and 0.16, as summarized in Table~\ref{tab:rebalanced_parity_metrics}.
+Because the Non-Binary category comprises only 73 candidates in the entire pool, the algorithm selects all 73 individuals, leaving $80 - 73 = 7$ vacant slots in the target shortlist. **These remaining 7 vacancies are redistributed by pulling the next highest-scoring candidates from the remaining unselected pool, sorted strictly by their predicted profile-consistency score, regardless of demographic group. In this empirical run, this fallback selection resulted in 6 additional Male candidates and 1 additional Female candidate being selected.** Thus, to fill the remaining slots, the final counts for Male and Female groups are restricted to 86 and 81 (selection rates of 14.17\% and 15.58\% respectively). This intervention severely suppresses their impact ratios to 0.14 and 0.16, as summarized in Table~\ref{tab:rebalanced_parity_metrics}.
 
 \begin{table*}[t]
 \centering
@@ -396,6 +396,27 @@ This demonstrates that naive mathematical rebalancing constraints can introduce 
 \begin{equation}
 g_{\text{intersection}} \in \{ \text{Gender} \times \text{Age Category} \}
 \end{equation}
+To illustrate the value of this approach, we perform an intersectional baseline audit on our dataset. We split the candidate pool into young ($<35$ years) and senior ($\ge 35$ years) cohorts across gender groups. The selection rates under the baseline (unmitigated) top-20\% shortlist configuration are detailed in Table~\ref{tab:intersectional_audit}.
+
+\begin{table}[h]
+\centering
+\caption{Intersectional Baseline Selection Rates (Gender $\times$ Age Category)}
+\label{tab:intersectional_audit}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Intersectional Group} & \textbf{Pool} & \textbf{Selected} & \textbf{Selection Rate} \\
+\midrule
+Female $\times$ Young ($<35$) & 255 & 62 & 24.31\% \\
+Female $\times$ Senior ($\ge 35$) & 265 & 45 & 16.98\% \\
+Male $\times$ Young ($<35$) & 296 & 66 & 22.30\% \\
+Male $\times$ Senior ($\ge 35$) & 311 & 52 & 16.72\% \\
+Non-Binary $\times$ Young ($<35$) & 32 & 7 & 21.88\% \\
+Non-Binary $\times$ Senior ($\ge 35$) & 41 & 8 & 19.51\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The intersectional audit reveals a critical pattern that remains hidden when analyzing gender in isolation: both young Female (24.31\%) and young Male (22.30\%) candidates exhibit substantially higher selection rates than their senior counterparts (16.98\% and 16.72\% respectively). While the aggregate gender selection gap was minimal (1.14\%), the intersectional age-gender gap reaches up to 7.59\% between young and senior Females. This highlights that age-related temporal bias is active across both binary gender categories, emphasizing the necessity of multi-dimensional HCAI audits.
 
 \subsection{User Interface}
 The Streamlit dashboard allows recruiters to interactively inspect these tables. The qualitative HCAI proxy-risk analysis (Table~\ref{tab:hcai_audit}) is presented in the dashboard's ``HCAI Audit'' tab, warning recruiters about fields that may encode historical bias.
@@ -426,19 +447,19 @@ To evaluate how candidate profile variables influence the final consistency rati
 \toprule
 \textbf{Feature} & \textbf{Correlation Coefficient} \\
 \midrule
-Graduation Year & 0.0982 \\
-Certification Count & 0.0730 \\
-Skills Count & 0.0319 \\
-Education Score & 0.0146 \\
-Experience Years & -0.1019 \\
+Graduation Year & 0.1134 \\
+Certification Count & -0.0052 \\
+Skills Count & 0.0331 \\
+Education Score & 0.0020 \\
+Experience Years & -0.1161 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 The correlation analysis reveals an interesting structural pattern:
 \begin{itemize}
-    \item \textbf{Experience Years and Graduation Year:} There is a negative correlation between \texttt{Experience\_Years} ($-0.1019$) and candidate score, while \texttt{Graduation\_Year} is positively correlated ($0.0982$). This indicates that candidates with more recent graduation years and fewer total years of experience tend to receive higher profile-consistency scores from the model. In tech recruiting, younger profiles and newer graduates occupy highly consistent, modern job title trajectories, whereas senior profiles exhibit longer, more varied career paths with highly heterogeneous historical roles, which structurally reduces the model's prediction confidence for any single target category.
-    \item \textbf{Skills and Certifications:} Both skill counts ($0.0319$) and certification counts ($0.0730$) exhibit positive correlations with the score. This confirms that structured signals of professional development and technical capabilities contribute directly to high consistency scores, acting as strong validation anchors for predicted roles.
+    \item \textbf{Experience Years and Graduation Year:} There is a negative correlation between \texttt{Experience\_Years} ($-0.1161$) and candidate score, while \texttt{Graduation\_Year} is positively correlated ($0.1134$). This indicates that candidates with more recent graduation years and fewer total years of experience tend to receive higher profile-consistency scores from the model. In tech recruiting, younger profiles and newer graduates occupy highly consistent, modern job title trajectories, whereas senior profiles exhibit longer, more varied career paths with highly heterogeneous historical roles. This structurally reduces the model's prediction confidence for any single target category. **This constitutes a major user threat: older, more experienced candidates are systematically disadvantaged by the model due to their naturally more diverse and heterogeneous career paths, which the role-consistency classifier mistakes for a lack of alignment. Without explicit user awareness of this threat, recruiters may blindly trust the consistency score and indirectly filter out senior talent.**
+    \item \textbf{Skills and Certifications:} Skill count ($0.0331$) exhibits a positive correlation with the score. However, certification count ($-0.0052$) exhibits a near-zero negative correlation after correctly filtering out missing certifications (originally labeled as ``Not listed''). This confirms that while structured skills continue to act as positive validation signals for predicted roles, the presence of certifications, once resolved of missingness, does not carry statistical weight in predicting role consistency.
 \end{itemize}
 This quantitative analysis highlights that the feature representations learned by the model are influenced by temporal dynamics (graduation year) and career span (experience years). In a socio-technical setting, recruiters must be aware of these temporal patterns to ensure that the scoring does not indirectly penalize senior applicants whose long-term professional histories are inherently more diverse.
 
@@ -474,6 +495,11 @@ National Institute of Standards and Technology. 2023.
 Reva Schwartz, Apostol Vassilev, Kristen~K. Greene, Lori Perine, Andrew Burt, and Patrick Hall. 2022.
 \newblock {\em Towards a Standard for Identifying and Managing Bias in Artificial Intelligence}.
 \newblock NIST Special Publication 1270. \url{https://doi.org/10.6028/NIST.SP.1270}
+
+\bibitem{eeoc1978}
+Equal Employment Opportunity Commission, Civil Service Commission, Department of Labor, and Department of Justice. 1978.
+\newblock {\em Uniform Guidelines on Employee Selection Procedures}.
+\newblock Federal Register 43, 166 (August 25, 1978), 38290--38315. \url{https://www.govinfo.gov/content/pkg/CFR-2011-title29-vol4/pdf/CFR-2011-title29-vol4-part1607.pdf}
 
 \bibitem{pessach2020}
 Dana Pessach and Erez Shmueli. 2020.
