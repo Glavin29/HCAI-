@@ -102,10 +102,10 @@ The goal of this research is to bridge this socio-technical divide and contribut
 Incorporating machine learning in recruitment has shown promise in reducing administrative overhead. However, the adoption of automated hiring systems remains limited by concerns over algorithmic bias, black-box decisions, and legal compliance. This survey focuses on the literature surrounding algorithmic fairness, explainability, and auditing frameworks in recruitment.
 
 \subsection{Algorithmic Fairness and Bias in Recruitment}
-Barocas, Hardt, and Narayanan~\cite{barocas2023} argue that algorithmic fairness cannot be understood only as an optimization problem. Fairness criteria involve normative choices, and different definitions can conflict. Their work also emphasizes that discrimination may arise from data, measurement, labels, and institutional context. For instance, attempting to satisfy equal selection rates (demographic parity) may conflict with predictive parity if underlying group distributions differ in the training set. Raghavan et al.~\cite{raghavan2020} evaluate industry practices in algorithmic hiring and discuss how bias auditing is marketed vs. implemented in commercial systems.
+Barocas, Hardt, and Narayanan~\cite{barocas2023} argue that algorithmic fairness cannot be understood only as an optimization problem. Fairness criteria involve normative choices, and different definitions can conflict. Their work also emphasizes that discrimination may arise from data, measurement, labels, and institutional context. For instance, attempting to satisfy equal selection rates (demographic parity) may conflict with predictive parity if underlying group distributions differ in the training set. Different mathematical fairness definitions, such as demographic parity and equalized opportunity, provide alternative frameworks for measuring bias, though they are often mathematically incompatible~\cite{hardt2016}. A comprehensive survey by Mehrabi et al.~\cite{mehrabi2021} details how these biases propagate through data collection, representation, and model deployment in supervised learning pipelines. Raghavan et al.~\cite{raghavan2020} evaluate industry practices in algorithmic hiring and discuss how bias auditing is marketed vs. implemented in commercial systems.
 
 \subsection{Machine Learning-Based Screening Applications}
-Automated resume screening typically relies on extracting structured text features and mapping them to professional targets. However, historical training data often reflects pre-existing human biases. For instance, in 2018, Amazon scrapped an AI recruiting tool because it had learned to penalize resumes containing the word ``women's''~\cite{dastin2018}. Consequently, the model acts as an ``equity-washing'' mechanism, reinforcing systemic bias under the guise of algorithmic objectivity.
+Automated resume screening typically relies on extracting structured text features and mapping them to professional targets. Recent advances in Natural Language Processing (NLP) have shifted resume screening from bag-of-words representations to deep contextual transformer architectures, such as BERT~\cite{devlin2018} and RoBERTa~\cite{liu2019}. While these deep sequence models excel at capturing semantic nuances and synonymy across complex candidate skills, they are also prone to encoding and reinforcing historical societal stereotypes present in their large-scale pre-training corpus. For instance, in 2018, Amazon scrapped an AI recruiting tool because it had learned to penalize resumes containing the word ``women's''~\cite{dastin2018}. Consequently, the model acts as an ``equity-washing'' mechanism, reinforcing systemic bias under the guise of algorithmic objectivity.
 
 \subsection{Quantitative Fairness Metrics}
 The four-fifths rule is commonly used as a practical screening method for potential adverse impact~\cite{pessach2020}. It compares each group's selection rate with the highest group selection rate. If a group's selection rate is below 80\% of the highest rate, the outcome requires further review. In FairHire AI, this rule is implemented as an impact ratio for fairness auditing. The system treats it as an alert, not as a final legal conclusion.
@@ -120,7 +120,7 @@ Shneiderman's HCAI framework~\cite{shneiderman2020} outlines that high automatio
 NIST's work on identifying and managing bias in AI~\cite{schwartz2022} emphasizes that bias can appear throughout the AI lifecycle and may create harm even without malicious intent. They categorize bias into three areas: pre-existing (systemic bias in society), technical (limitations of algorithms or data representation), and emergent (biases that arise when systems are deployed in new contexts). Algorithmic decisions must remain contestable and transparent, requiring technical accountability.
 
 \subsection{User Interface and Dashboard Design in HR Tech}
-To support accountability, systems must provide structured, standard documentation of a model's performance, training data, and ethical considerations. In interactive settings, user interface design must present these statistics dynamically, allowing recruiters to inspect demographic impact in real time.
+To support accountability, systems must provide structured, standard documentation of a model's performance, training data, and ethical considerations. Frameworks like Model Cards~\cite{mitchell2019} have been proposed to standardize the reporting of model training configurations, evaluation splits, and performance metrics across demographic subgroups, ensuring transparency and accountability for automated systems. In interactive settings, user interface design must present these statistics dynamically, allowing recruiters to inspect demographic impact in real time.
 
 \subsection{Current Challenges and Research Gaps}
 Caton and Haas~\cite{caton2020} survey mathematical fairness definitions, categorizing mitigation techniques into pre-processing, in-processing, and post-processing stages. A major research gap exists in how recruiters interact with these mathematical trade-offs in real-world dashboards. Naive optimization of group parity can lead to unexpected individual disparities, and the visual representation of these trade-offs is crucial for responsible decision-making.
@@ -207,7 +207,15 @@ def preprocess_resumes(df: pd.DataFrame) -> pd.DataFrame:
 \subsection{Model Architecture and Training}
 The computational core is a role-consistency classifier developed using a scikit-learn pipeline. The prediction target is defined as \texttt{Current\_Job\_Title}. Rather than attempting to predict subjective hiring outcomes, the classifier learns the statistical relationships between resume features and current job titles to evaluate profile consistency.
 
-We employ a pre-trained RoBERTa transformer model (\texttt{roberta-base}) to extract semantic representations from the candidate resume text. The textual fields (such as skills, certifications, and target job description) are unified into a single sequence $S$ and tokenized. Let $T(S)$ be the sequence of tokens, and let $\text{RoBERTa}(T(S))$ represent the output hidden states of the transformer encoder. The dense representation vector $\vec{v}(r) \in \mathbb{R}^{768}$ is extracted from the hidden state corresponding to the first pooling token ($[\text{CLS}]$):
+We employ a pre-trained RoBERTa transformer model (\texttt{roberta-base}) to extract semantic representations from the candidate resume text. The textual fields (such as skills, certifications, and target job description) are unified into a single sequence $S$ and tokenized using a Byte-Pair Encoding (BPE) tokenizer. Let $T(S)$ be the sequence of tokens, and let $\text{RoBERTa}(T(S))$ represent the output hidden states of the transformer encoder. 
+
+At the core of the RoBERTa encoder is the multi-head self-attention mechanism. For a given input representation, Query ($Q$), Key ($K$), and Value ($V$) matrices are projected using learned parameter weights. The self-attention matrix is computed as:
+\begin{equation}
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+\end{equation}
+where $d_k = 64$ represents the dimensionality of the keys for each attention head. The output of the multi-head attention is passed through residual connections, layer normalization, and feed-forward networks across 12 layers. 
+
+The dense representation vector $\vec{v}(r) \in \mathbb{R}^{768}$ is extracted from the hidden state corresponding to the first pooling token ($[\text{CLS}]$), which aggregates context across the entire token sequence through self-attention:
 \begin{equation}
 \vec{v}(r) = \text{RoBERTa}_{\text{CLS}}(T(S))
 \end{equation}
@@ -401,7 +409,32 @@ Graduation Year & 0.0\% & 25 & 7.42\% & Potential age or career-break proxy. \\
 Field of Study & 0.0\% & 21 & 6.33\% & May encode historical occupational segregation. \\
 \bottomrule
 \end{tabular}
-\end{table*}
+\end{table*}\subsection{Feature Correlation Analysis}
+To evaluate how candidate profile variables influence the final consistency rating, we perform a Pearson correlation analysis between the numeric candidate features and the computed \texttt{candidate\_score}. The empirical correlation coefficients are detailed in Table~\ref{tab:correlations}.
+
+\begin{table}[h]
+\centering
+\caption{Feature Correlation with Candidate Score}
+\label{tab:correlations}
+\begin{tabular}{lr}
+\toprule
+\textbf{Feature} & \textbf{Correlation Coefficient} \\
+\midrule
+Graduation Year & 0.0982 \\
+Certification Count & 0.0730 \\
+Skills Count & 0.0319 \\
+Education Score & 0.0146 \\
+Experience Years & -0.1019 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The correlation analysis reveals an interesting structural pattern:
+\begin{itemize}
+    \item \textbf{Experience Years and Graduation Year:} There is a negative correlation between \texttt{Experience\_Years} ($-0.1019$) and candidate score, while \texttt{Graduation\_Year} is positively correlated ($0.0982$). This indicates that candidates with more recent graduation years and fewer total years of experience tend to receive higher profile-consistency scores from the model. In tech recruiting, younger profiles and newer graduates occupy highly consistent, modern job title trajectories, whereas senior profiles exhibit longer, more varied career paths with highly heterogeneous historical roles, which structurally reduces the model's prediction confidence for any single target category.
+    \item \textbf{Skills and Certifications:} Both skill counts ($0.0319$) and certification counts ($0.0730$) exhibit positive correlations with the score. This confirms that structured signals of professional development and technical capabilities contribute directly to high consistency scores, acting as strong validation anchors for predicted roles.
+\end{itemize}
+This quantitative analysis highlights that the feature representations learned by the model are influenced by temporal dynamics (graduation year) and career span (experience years). In a socio-technical setting, recruiters must be aware of these temporal patterns to ensure that the scoring does not indirectly penalize senior applicants whose long-term professional histories are inherently more diverse.
 
 \section{CONCLUSION}
 FairHire AI demonstrates that fair machine learning in recruitment requires a socio-technical approach. By combining data preprocessing, role-consistency modeling, local explainability, and post-hoc auditing, the prototype offers a structured mechanism for human oversight. The evaluation highlighted that mathematical interventions (like rebalancing) cannot be applied naively, as small group sizes can distort outcome metrics. A model is only a single component; fairness requires ongoing data governance, transparency, and clinical attention to the socio-technical environment in which the model operates.
@@ -470,6 +503,31 @@ Scott M. Lundberg and Su-In Lee. 2017.
 Marco Tulio Ribeiro, Sameer Singh, and Carlos Guestrin. 2016.
 \newblock ``Why should I trust you?'': Explaining the predictions of any classifier.
 \newblock In {\em Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD '16)}. ACM, 1135--1144.
+
+\bibitem{devlin2018}
+Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2018.
+\newblock BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding.
+\newblock {\em arXiv preprint arXiv:1810.04805} (2018). \url{https://arxiv.org/abs/1810.04805}
+
+\bibitem{liu2019}
+Yinhan Liu, Myle Ott, Naman Goyal, Jingfei Du, Mandar Joshi, Danqi Chen, Omer Levy, Mike Lewis, Luke Zettlemoyer, and Veselin Stoyanov. 2019.
+\newblock RoBERTa: A Robustly Optimized BERT Pretraining Approach.
+\newblock {\em arXiv preprint arXiv:1907.11692} (2019). \url{https://arxiv.org/abs/1907.11692}
+
+\bibitem{hardt2016}
+Moritz Hardt, Eric Price, and Nati Srebro. 2016.
+\newblock Equality of opportunity in supervised learning.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS 2016)}. 3315--3323.
+
+\bibitem{mitchell2019}
+Margaret Mitchell, Simone Wu, Andrew Zaldivar, Parker Barnes, Lucy Vasserman, Ben Hutchinson, Elena Spitzer, Inioluwa Deborah Raji, and Timnit Gebru. 2019.
+\newblock Model cards for model reporting.
+\newblock In {\em Proceedings of the Conference on Fairness, Accountability, and Transparency (FAT* '19)}. ACM, 220--229. \url{https://doi.org/10.1145/3287560.3287596}
+
+\bibitem{mehrabi2021}
+Ninareh Mehrabi, Fred Morstatter, Nripsuta Saxena, Kristina Lerman, and Aram Galstyan. 2021.
+\newblock A survey on bias and fairness in machine learning.
+\newblock {\em ACM Computing Surveys (CSUR)} 54, 6 (2021), 1--35. \url{https://doi.org/10.1145/3457607}
 
 \end{thebibliography}
 
